@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { Node } from 'reactflow'
 import Tables from './Tables'
 import CodeComponent from './Code'
+import useFlowState from '../store/flowStore'
 
 type Props = {
-  node: Node | undefined
-  nodes: { [x: string]: Node }
   title: string
   description: string
 }
 
-function Panel({ node, nodes, title, description }: Props) {
+function Panel({ title, description }: Props) {
   const [view, setView] = useState<boolean>()
   const [children, setChildren] = useState<Node[]>([])
+  const [node, nodes] = useFlowState((store) => [store.currentNode, store.nNodes])
   const [activeNode, setActiveNode] = useState<Node | undefined>(node)
   const data = node?.data
   useEffect(() => {

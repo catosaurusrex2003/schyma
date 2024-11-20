@@ -3,6 +3,7 @@ import { nodeHeight, nodeWidth } from '../constants/node'
 import dagre from '@dagrejs/dagre'
 
 export const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
+  console.log("layouting")
   const dagreGraph = new dagre.graphlib.Graph()
 
   dagreGraph.setDefaultEdgeLabel(() => ({}))

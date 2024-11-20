@@ -20,11 +20,9 @@ import { propMerge, removeEdgesByParent, removeElementsByParent, resolveRef } fr
 import { JSONSchema7Object } from 'json-schema'
 import { IObject, NodeData } from '../types'
 import { getLayoutedElements } from '../utils/dagreUtils'
+import useFlowState from '../store/flowStore'
 
 type NodeProps = {
-  setCurrentNode: (node: Node) => void
-  setnNodes: any
-  nNodes: { [x: string]: Node }
   initialNode: Node
   schema: JSONSchema7Object
 }
@@ -46,11 +44,17 @@ const initialEdges: [Edge] = [
   },
 ]
 
-export function Flow({ initialNode, nNodes, setnNodes, setCurrentNode, schema }: NodeProps) {
+export function Flow({ initialNode, schema }: NodeProps) {
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([initialNode], initialEdges)
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges)
   const { setCenter } = useReactFlow()
+  const [setCurrentNode, nNodes, setnNodes] = useFlowState((store) => [
+    store.setCurrentNode,
+    store.nNodes,
+    store.setnNodes,
+  ])
+
   const onConnect = useCallback(
     (connection: Connection) =>
       setEdges((eds) =>
@@ -151,9 +155,10 @@ export function Flow({ initialNode, nNodes, setnNodes, setCurrentNode, schema }:
       }
     } else {
       const newNodes = removeElementsByParent(nodes, node.id)
-      setNodes([...newNodes])
       const newEdges = removeEdgesByParent(edges, node.id)
-      setEdges([...newEdges])
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(newNodes, newEdges, 'LR')
+      setNodes([...layoutedNodes])
+      setEdges([...layoutedEdges])
     }
   }
 
