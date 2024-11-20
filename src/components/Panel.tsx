@@ -5,28 +5,28 @@ import CodeComponent from './Code'
 
 type Props = {
   node: Node | undefined
-  nodes: {[x: string]: Node}
+  nodes: { [x: string]: Node }
   title: string
   description: string
 }
 
 function Panel({ node, nodes, title, description }: Props) {
   const [view, setView] = useState<boolean>()
-  const [children, setChildren] = useState<Node[]>([]);
-  const [activeNode, setActiveNode] = useState<Node| undefined>(node)
-  const data = node?.data;
+  const [children, setChildren] = useState<Node[]>([])
+  const [activeNode, setActiveNode] = useState<Node | undefined>(node)
+  const data = node?.data
   useEffect(() => {
-    if(node){
-      setView(true);
-      if(data.children.length > 0){
+    if (node) {
+      setView(true)
+      if (data.children.length > 0) {
         setChildren(data.children)
-        setActiveNode(node);
-      }else{
+        setActiveNode(node)
+      } else {
         setActiveNode(nodes[data.parent])
-        setChildren(nodes[data.parent].data.children);
+        setChildren(nodes[data.parent].data.children)
       }
     }
-  },[node])
+  }, [node])
   if (view) {
     return (
       <div className='panel'>

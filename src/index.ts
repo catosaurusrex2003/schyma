@@ -1,3 +1,3 @@
-import Schyma from "./components/App"
+import Schyma from "./pages/App"
 
 export default Schyma

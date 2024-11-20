@@ -56,10 +56,10 @@ export function propMerge(schema: any, label: string) {
         propObj[allOf[i].type] = allOf[i]
       }
     }
-    Object.assign(mergedProps, propObj);
+    Object.assign(mergedProps, propObj)
   }
   if (combinedOf) {
-    const props = arrayToProps(combinedOf, label);
+    const props = arrayToProps(combinedOf, label)
     Object.assign(mergedProps, props)
   }
   return mergedProps
@@ -94,47 +94,43 @@ export function removeElementsByParent(nodes: any, id: any) {
       }
     }
     return node
-  });
+  })
 
-  return result;
+  return result
 }
 
 export function removeEdgesByParent(edges: any, id: any) {
   const result = edges.filter((edge: any) => {
     if (edge.source === id) {
-      return false;
+      return false
     }
-    return true;
-  });
+    return true
+  })
 
-  return result;
+  return result
 }
 
-
 export function retrieveObj(theObject: any, key: string | undefined) {
-  var result:any = null;
+  var result: any = null
   if (theObject instanceof Array) {
     for (var i = 0; i < theObject.length; i++) {
-      result = retrieveObj(theObject[i], key);
+      result = retrieveObj(theObject[i], key)
       if (result) {
-        break;
+        break
       }
     }
   } else {
     for (var prop in theObject) {
       if (prop == key) {
-        return theObject[prop];
+        return theObject[prop]
       }
-      if (
-        theObject[prop] instanceof Object ||
-        theObject[prop] instanceof Array
-      ) {
-        result = retrieveObj(theObject[prop], key);
+      if (theObject[prop] instanceof Object || theObject[prop] instanceof Array) {
+        result = retrieveObj(theObject[prop], key)
         if (result) {
-          break;
+          break
         }
       }
     }
   }
-  return result;
+  return result
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react'
 import { SmartBezierEdge } from '@tisoap/react-flow-smart-edge'
 import {
   ReactFlow,
@@ -13,13 +13,13 @@ import {
   useEdgesState,
   addEdge,
   Position,
-  ReactFlowProvider,
   Connection,
   ConnectionLineType,
 } from 'reactflow'
-import {propMerge, removeEdgesByParent, removeElementsByParent, resolveRef } from '../utils/reusables';
+import { propMerge, removeEdgesByParent, removeElementsByParent, resolveRef } from '../utils/reusables'
 import { JSONSchema7Object } from 'json-schema'
 import { IObject, NodeData } from '../types'
+import { getLayoutedElements } from '../utils/dagreUtils'
 
 type NodeProps = {
   setCurrentNode: (node: Node) => void
@@ -27,10 +27,6 @@ type NodeProps = {
   nNodes: { [x: string]: Node }
   initialNode: Node
   schema: JSONSchema7Object
-  getLayoutedElements: (nodes: Node[], edges: Edge[], direction?: string) => {
-    nodes: Node[];
-    edges: Edge[];
-  }
 }
 
 const position = { x: 0, y: 0, zoom: 0.2 }
@@ -50,11 +46,11 @@ const initialEdges: [Edge] = [
   },
 ]
 
-function Flow({initialNode, nNodes, setnNodes, setCurrentNode, schema, getLayoutedElements}: NodeProps) {
-  const {nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([initialNode], initialEdges)
-  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges);
-  const {setCenter} = useReactFlow()
+export function Flow({ initialNode, nNodes, setnNodes, setCurrentNode, schema }: NodeProps) {
+  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements([initialNode], initialEdges)
+  const [nodes, setNodes, onNodesChange] = useNodesState(layoutedNodes)
+  const [edges, setEdges, onEdgesChange] = useEdgesState(layoutedEdges)
+  const { setCenter } = useReactFlow()
   const onConnect = useCallback(
     (connection: Connection) =>
       setEdges((eds) =>
@@ -113,32 +109,6 @@ function Flow({initialNode, nNodes, setnNodes, setCurrentNode, schema, getLayout
     return children
   }
 
-  useEffect(() => {
-    const fetchInitialChildren = async () => {
-      const newNodes: Node[] = []
-      const properties = (initialNode.data as unknown as NodeData).properties
-      const children = await extractChildren(properties, initialNode)
-      newNodes.push({
-        id: initialNode.id,
-        type: 'input',
-        data: {
-          children,
-          label: initialNode.data.label,
-          description: initialNode.data.description,
-          properties: initialNode.data.properties,
-          relations: initialNode.data.relations,
-        },
-        position: { x: 0, y: 0 },
-        sourcePosition: Position.Right,
-        targetPosition: Position.Left,
-      })
-      setNodes(newNodes)
-    }
-
-    fetchInitialChildren()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   // Node focus when clicked
   const focusNode = (children: Node[], zoom: number) => {
     const length = children.length
@@ -180,10 +150,10 @@ function Flow({initialNode, nNodes, setnNodes, setCurrentNode, schema, getLayout
         focusNode(itemChildren, 0.9)
       }
     } else {
-      const newNodes = removeElementsByParent(nodes, node.id);
-      setNodes([...newNodes]);
-      const newEdges = removeEdgesByParent(edges, node.id);
-      setEdges([...newEdges]);
+      const newNodes = removeElementsByParent(nodes, node.id)
+      setNodes([...newNodes])
+      const newEdges = removeEdgesByParent(edges, node.id)
+      setEdges([...newEdges])
     }
   }
 
@@ -233,6 +203,32 @@ function Flow({initialNode, nNodes, setnNodes, setCurrentNode, schema, getLayout
     smart: SmartBezierEdge,
   }
 
+  useEffect(() => {
+    const fetchInitialChildren = async () => {
+      const newNodes: Node[] = []
+      const properties = (initialNode.data as unknown as NodeData).properties
+      const children = await extractChildren(properties, initialNode)
+      newNodes.push({
+        id: initialNode.id,
+        type: 'input',
+        data: {
+          children,
+          label: initialNode.data.label,
+          description: initialNode.data.description,
+          properties: initialNode.data.properties,
+          relations: initialNode.data.relations,
+        },
+        position: { x: 0, y: 0 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+      })
+      setNodes(newNodes)
+    }
+
+    fetchInitialChildren()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <ReactFlow
       nodes={nodes}
@@ -253,9 +249,3 @@ function Flow({initialNode, nNodes, setnNodes, setCurrentNode, schema, getLayout
     </ReactFlow>
   )
 }
-
-export default ({ setCurrentNode, setnNodes, nNodes, initialNode, schema, getLayoutedElements }: NodeProps) => (
-  <ReactFlowProvider>
-    <Flow setnNodes={setnNodes} nNodes={nNodes} setCurrentNode={setCurrentNode}  initialNode={initialNode} schema={schema} getLayoutedElements={getLayoutedElements} />
-  </ReactFlowProvider>
-)
